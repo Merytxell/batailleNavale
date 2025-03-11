@@ -6,10 +6,10 @@
 # un no_ligne ou no_colonne est compris dans le programme entre 1 et 10,
 # mais pour le joueur une colonne sera identifiée par une lettre (de 'A' à 'J')
 
-GRID_SIZE = 10
+grid_size = 10
 
 # détermination de la liste des lettres utilisées pour identifier les colonnes :
-LETTERS = [chr(letter_code) for letter_code in range(ord('A'), ord('A') + GRID_SIZE)]
+LETTERS = [chr(letter_code) for letter_code in range(ord('A'), ord('A') + grid_size)]
 
 # différents états possibles pour une case de la grille de jeu
 SEA, MISSED_SHOT, HIT_SHOT, SUNK_SHOT = 0, 1, 2, 3
@@ -55,6 +55,45 @@ submarine        = {(5, 8): True, (5, 9): True, (5, 10): True}
 torpedo_boat     = {(9, 5): True, (9, 6): True}
 ships_list = [aircraft_carrier, cruiser, destroyer, submarine, torpedo_boat]
 
+#ajout class bateau avec les états (touché ou coulé)
+class Ship():
+    def __init__(self,name,size):
+        self.name= name
+        self.size = size
+        self.position=[]
+
+    def is_hit(self, shot_coord):
+        if shot_coord in self.position:
+            self.position[shot_coord]= False
+            return True
+        return False
+
+    def is_sunk(self):
+        return not any(self.position.values())
+
+ #ajout grille avec bateau touché ou coulé
+class Grid:
+    def __init__(self):
+        self.size = grid_size
+        self.ships=[]
+        self.shoot=set()
+
+    def add_ship(self,ship):
+        self.ships.append(ship)
+
+    def ship_shoot(self, coord):
+        self.shoot.add(coord)
+        for ship in self.ships:
+            if ship.is_hit(coord):
+                print("touché !")
+                if ship.is_sunk():
+                    print(f"{ship.name}est coulé")
+                    self.ships.remove(ship)
+                return True
+            print("Manqué")
+            return False
+
+
 
 def get_ship_by_coord():
     """Construction d'un dictionnaire permettant de connaitre l'éventuel bateau
@@ -92,7 +131,7 @@ def ask_coord():
             # détermination de line_no et column_no (comptés à partir de 1)
             line_no = int(number)
             column_no = ord(letter) - ord('A') + 1
-            if 1 <= line_no <= GRID_SIZE and letter in LETTERS:
+            if 1 <= line_no <= grid_size and letter in LETTERS:
                 valid_coord = True
                 shot_coord = (line_no, column_no)
         except ValueError:
@@ -153,20 +192,20 @@ def display_grid():
     """Affichage de la grille de jeu."""
 
     print('    ', end='')
-    for x in range(GRID_SIZE):
+    for x in range(grid_size):
         letter = LETTERS[x]
         print(' {}  '.format(letter), end='')
     print()
-    print('  ', '+---' * GRID_SIZE + '+')
-    for line_no in range(1, GRID_SIZE + 1):
+    print('  ', '+---' * grid_size + '+')
+    for line_no in range(1,  + 1):
         print('{:>2} |'.format(line_no), end='')
-        for column_no in range(1, GRID_SIZE + 1):
+        for column_no in range(1, grid_size + 1):
             coord = (line_no, column_no)
             square_state = grid_square_state(coord)
             state_str = SQUARE_STATE_REPR[square_state]
             print(' {} |'.format(state_str), end='')
         print()
-        print('  ', '+---' * GRID_SIZE + '+')
+        print('  ', '+---' * grid_size + '+')
 
 # -------------------------------------------------------------------------- #
 # programme principal :                                                      #
